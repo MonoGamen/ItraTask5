@@ -1,0 +1,73 @@
+﻿@{
+    ViewData["Title"] = "Game Page";
+}
+
+<script src="/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+<script>
+    function onTdClick(event) {
+        let currentCell = event.currentTarget;
+        let [x, y] = currentCell.id.split('_');
+        hubConnection.invoke("Move", x, y, getCookie("player"));
+    }
+
+    function setEventsForTd() {
+        let cells = document.getElementsByTagName("td");
+        for (let cell of cells) {
+            cell.onclick = onTdClick;
+        }
+    }
+
+    function getCookie(name) {
+        let matches = document.cookie.match(new RegExp(
+            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        ));
+        return matches ? decodeURIComponent(matches[1]) : undefined;
+    }
+
+    function draw(x, y, imageName) {
+        let image = document.getElementById(x + "_" + y).children[0];
+        image.src = "/images/" + imageName + ".png";
+    }
+
+    function gameEnd(message) {
+        alert(message);
+        window.location.href = "/";
+    }
+
+    const hubConnection  = new signalR.HubConnectionBuilder()
+            .withUrl("/game?userurl=" + window.location.pathname)
+            .build();
+    hubConnection.on("draw", draw);
+    hubConnection.on("gameEnd", gameEnd);
+    hubConnection.start();
+
+    window.addEventListener("load", setEventsForTd);
+    window.onbeforeunload = () => { document.cookie = 'player=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'; };
+</script>
+
+
+<div class="text-center">
+    <h1 class="display-4">Tic Tac Toe</h1>
+
+    <div class="d-flex justify-content-center align-items-center">
+        <table class="table table-bordered custom-table">
+            <tbody>
+                <tr>
+                    <td id="0_0"><img src="~/images/Empty.png"></td>
+                    <td id="0_1"><img src="~/images/Empty.png"></td>
+                    <td id="0_2"><img src="~/images/Empty.png"></td>
+                </tr>
+                <tr>
+                    <td id="1_0"><img src="~/images/Empty.png"></td>
+                    <td id="1_1"><img src="~/images/Empty.png"></td>
+                    <td id="1_2"><img src="~/images/Empty.png"></td>
+                </tr>
+                <tr>
+                    <td id="2_0"><img src="~/images/Empty.png"></td>
+                    <td id="2_1"><img src="~/images/Empty.png"></td>
+                    <td id="2_2"><img src="~/images/Empty.png"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

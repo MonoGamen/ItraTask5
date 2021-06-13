@@ -1,0 +1,68 @@
+﻿@model HashSet<string>
+@{
+    ViewData["Title"] = "Make Page";
+}
+
+<div class="text-center">
+    <p class="h4">Enter game name</p>
+</div>
+
+<div class="d-flex flex-column justify-content-center align-items-center">
+    <form class="w-50" method="post" id="form">
+        <div class="input-group">
+            <input type="text" class="form-control" name="name" />
+            <input type="submit" class="btn btn-primary" value="Create" />
+        </div>
+    </form>
+
+    <div class="text-center m-2">
+        <p class="h4">Enter tags</p>
+    </div>
+
+    <div class="w-50 d-flex flex-column justify-content-between align-items-start">
+        <div class="d-flex flex-wrap justify-content-end align-items-center mb-2 w-100" id="tagsdiv"></div>
+
+        <div class="d-flex flex-wrap justify-content-end w-100">
+            <input list="data" class="form-control" id="inputtag">
+            <datalist id="data">
+                @foreach (var t in Model)
+                {
+                    <option>@t</option>
+                }
+            </datalist>
+            <button class="btn btn-primary mx-1" onclick="AddTag()">Add</button>
+            <button class="btn btn-danger" onclick="ClearTags()">Clear</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function AddTag() {
+        let tagname = document.getElementById("inputtag").value;
+        if (!tagname)
+            return;
+        let tagsdiv = document.getElementById("tagsdiv");
+
+        if (Array.from(tagsdiv.children).every((el) => { return el.innerHTML != tagname })) {
+            let tag = document.createElement("div");
+            tag.className = "rounded bg-warning px-2 mx-1";
+            tag.innerHTML = tagname;
+
+            let inner = document.createElement("input");
+            inner.type = "hidden";
+            inner.value = tagname.trim();
+            inner.setAttribute("form", "form");
+            inner.setAttribute("name", "tags")
+
+            tag.appendChild(inner);
+            tagsdiv.prepend(tag);
+        }
+    }
+
+    function ClearTags() {
+        let tagsdiv = document.getElementById("tagsdiv");
+        while (tagsdiv.firstChild) {
+            tagsdiv.removeChild(tagsdiv.lastChild);
+        }
+    }
+</script>

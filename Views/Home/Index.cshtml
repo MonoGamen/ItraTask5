@@ -1,0 +1,82 @@
+﻿@model HomeModel
+
+<div>
+    <div class="text-right mb-2">
+        <a href="/Make/Index">Start new game</a>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start">
+        <div class="d-flex flex-wrap justify-content-end align-items-center" style="flex-basis: 65%; flex-grow: 0; flex-shrink: 0; align-self: center;" id="tagsdiv"></div>
+
+        <div class="d-flex flex-wrap justify-content-end" style="flex-basis: 30%; flex-grow: 0; flex-shrink: 0;">
+            <input list="data" class="form-control" id="inputtag">
+            <datalist id="data">
+                @foreach (var t in Model.Tags)
+                {
+                    <option>@t</option>
+                }
+            </datalist>
+            <button class="btn btn-primary mx-1" onclick="AddTag()">Search</button>
+            <button class="btn btn-danger" onclick="ClearTags()">Clear</button>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-around mt-2">
+        @foreach (var game in Model.Games)
+        {
+            <div class="border rounded text-left p-2 m-1 gamecont" style="width: 45%">
+
+                <div class="d-flex flex-wrap">
+                    @foreach (var tag in game.Tags)  
+                    {
+                        <div class="rounded bg-warning px-2 m-1 tag">
+                            @tag
+                        </div>
+                    }
+                </div>
+
+                <p class="h2">@game.Name</p>
+                <a href="/Game/Index/@game.GameId">Go</a>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    let gamecontainers = document.getElementsByClassName("gamecont");
+
+    function AddTag() {
+        let tagname = document.getElementById("inputtag").value;
+        if (!tagname)
+            return;
+        let tagsdiv = document.getElementById("tagsdiv");
+
+        if (Array.from(tagsdiv.children).every((el) => { return el.innerHTML != tagname })) {
+            let tag = document.createElement("div");
+            tag.className = "rounded bg-warning px-2 mx-1";
+            tag.innerHTML = tagname;
+            tagsdiv.prepend(tag);
+        }
+
+        let alltags = Array.from(tagsdiv.children).map((el) => { return el.innerHTML.trim() });
+        for (let cont of gamecontainers) {
+
+            let conttags = Array.from(cont.children[0].children).map((el) => { return el.innerHTML.trim() });
+            console.log(conttags);
+
+            if (!alltags.every(v => conttags.includes(v))) {
+                cont.style.display = "None";
+            }
+        }
+    }
+
+    function ClearTags() {
+        let tagsdiv = document.getElementById("tagsdiv");
+        while (tagsdiv.firstChild) {
+            tagsdiv.removeChild(tagsdiv.lastChild);
+        }
+
+        for (let div of gamecontainers)
+            div.style.display = "";
+    }
+</script>
